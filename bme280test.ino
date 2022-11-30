@@ -25,21 +25,21 @@ void setup() {
     // default settings
     status = bme.begin(0x76);  
 
-    /*if (!status) {
+    if (!status) {
         while (1){
           Serial.println("Cannot connect");
           delay(1000);
         } 
-    }*/
+    }
     wifiMulti.addAP(AP_SSID, AP_PWD);
     timeCur = millis(); 
-    timePrev = timeCur;
+    timePrev = 0;
 }
 
 void wifiHandle(){
   if (wifiMulti.run() == WL_CONNECTED) {
     HTTPClient http;
-    http.begin("http://tutaj_ip:5000/send");  
+    http.begin("http://192.168.89.249:8081/send");  
     http.addHeader("Content-Type", "application/json");
     StaticJsonDocument<200> doc;
     doc["temp"] = bme.readTemperature();
