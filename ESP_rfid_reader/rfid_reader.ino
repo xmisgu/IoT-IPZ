@@ -1,10 +1,16 @@
 #include <SPI.h>
 #include <MFRC522.h>
+#include <ArduinoJson.h>
+#include <HTTPClient.h>
+#include <WiFiMulti.h>
 
 #define SS_PIN 3
 #define RST_PIN 5
+const char *AP_SSID = "placeholder";
+const char *AP_PWD = "placeholder";
 
 MFRC522 rfid(SS_PIN, RST_PIN);
+WiFiMulti wifiMulti;
 
 MFRC522::MIFARE_Key key;
 
@@ -20,9 +26,7 @@ void setup(){
   }
 
   
-  Serial.println(F("This code scan the MIFARE Classsic NUID."));
-  Serial.print(F("Using the following key:"));
-  printHex(key.keyByte, MFRC522::MF_KEY_SIZE);
+  wifiMulti.addAP(AP_SSID, AP_PWD);
 }
 
 
@@ -53,16 +57,14 @@ void loop(){
     rfid.uid.uidByte[2] != nuidPICC[2] || 
     rfid.uid.uidByte[3] != nuidPICC[3] ) {
 
-    Serial.println(F("A new card has been detected."));
-
-    // Store NUID into nuidPICC array
     readCard();
 
-    Serial.println(F("The NUID tag is:"));
-    Serial.print(F("In dec: "));
-    printDec(rfid.uid.uidByte, rfid.uid.size);
-    Serial.println();
+    if(checkIsValid())
+      Serial.println("Access granted");
+    else
+      Serial.println("Access not granted");
 
+    
 
   }else Serial.println(F("Card read previously."));
 
@@ -71,14 +73,49 @@ void loop(){
 
   // Stop encryption on PCD
   rfid.PCD_StopCrypto1();
-
 }
 
-void readCard(){
-  for (byte i = 0; i < 4; i++) {
-      nuidPICC[i] = rfid.uid.uidByte[i];
-      Serial.println(nuidPICC[i]);
+bool checkIsValid(){
+  int value;
+  memcpy(&value, nuidPICC, sizeof(int));
+  
+  Serial.println(value);
+  String serverName = "http://192.168.89.249:8081/checkRFID";
+  if (wifiMulti.run() == WL_CONNECTED) {
+
+    HTTPClient http;
+    String serverPath = serverName;
+    http.begin(serverName);
+
+    http.addHeader("Content-Type", "application/json");
+    StaticJsonDocument<200> doc;
+    doc["rfid"] = value;
+    String requestBody;
+    serializeJson(doc, requestBody);
+
+    int httpResponseCode = http.POST(requestBody);
+    
+    if (httpResponseCode>0) {
+        String payload = "{}";
+        payload = http.getString();
+        if(payload == "true")
+          return true;
     }
+      http.end();
+    
+  }else {
+      Serial.println("WiFi Disconnected");
+  }  
+  return false;  
+}
+
+
+
+void readCard(){
+  for (byte i = 0; i < 4; i++)
+    nuidPICC[i] = rfid.uid.uidByte[i];
+  
+  Serial.println("Card readed");
 }
 
 
