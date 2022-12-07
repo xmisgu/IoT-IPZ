@@ -1,2 +1,2 @@
 # IoT-IPZ
-YES
+IoT project. YES.
