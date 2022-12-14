@@ -9,6 +9,7 @@ import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -17,6 +18,7 @@ public class DTEService {
     private final RFIDRepository rfidRepository;
 
     public Product saveProduct(Product product) {
+       // if (checkIfRFIDExists())
         dteRepository.save(product);
         return product;
     }
@@ -37,8 +39,17 @@ public class DTEService {
     }
 
     public boolean checkIfRFIDExists(RFIDClient rfidClient) {
-        boolean exists = rfidRepository.exists(Example.of(rfidClient));
-        System.out.println(exists);
-        return exists;
+        Optional<RFIDClient> rfidClientFromDB = rfidRepository.findById(rfidClient.getId());
+
+        if (rfidClientFromDB.isPresent()) {
+            RFIDClient updatedRFID = rfidClientFromDB.get();
+            System.out.println(updatedRFID.isInBuilding());
+            updatedRFID.setInBuilding(!updatedRFID.isInBuilding());
+            rfidRepository.save(updatedRFID);
+        }
+
+        System.out.println(rfidRepository.findById(rfidClient.getId()).get().isInBuilding());
+
+        return rfidClientFromDB.isPresent();
     }
 }

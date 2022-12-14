@@ -16,8 +16,11 @@ public class RFIDClient {
     private Long id;
     @Column(unique = true)
     private int rfid;
+    @Column(unique = true)
+    private boolean isInBuilding;
 
     public RFIDClient(int rfid) {
         this.rfid = rfid;
+        this.isInBuilding = false;
     }
 }

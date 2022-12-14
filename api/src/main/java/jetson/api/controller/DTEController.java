@@ -43,7 +43,8 @@ public class DTEController {
 
     @PostMapping("checkRFID")
     public boolean checkRFID(@RequestBody RFIDClient rfidClient) {
-
-        return dteService.checkIfRFIDExists(rfidClient);
+        RFIDClient givenRFIDClient = new RFIDClient(rfidClient.getRfid());
+        System.out.println(givenRFIDClient.getId());
+        return dteService.checkIfRFIDExists(givenRFIDClient);
     }
 }
