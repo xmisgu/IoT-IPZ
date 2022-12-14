@@ -6,13 +6,17 @@
 
 #define SS_PIN 3
 #define RST_PIN 5
-const char *AP_SSID = "placeholder";
-const char *AP_PWD = "placeholder";
+#define BTN_PIN 6
+
+const char *AP_SSID = "MikroTik123";
+const char *AP_PWD = "12345678";
 
 MFRC522 rfid(SS_PIN, RST_PIN);
 WiFiMulti wifiMulti;
 
 MFRC522::MIFARE_Key key;
+
+
 
 byte nuidPICC[4];
 
@@ -25,7 +29,7 @@ void setup(){
     key.keyByte[i] = 0xFF;
   }
 
-  
+  pinMode(BTN_PIN, INPUT_PULLUP);
   wifiMulti.addAP(AP_SSID, AP_PWD);
 }
 
@@ -59,11 +63,19 @@ void loop(){
 
     readCard();
 
-    if(checkIsValid())
-      Serial.println("Access granted");
-    else
-      Serial.println("Access not granted");
+    if(digitalRead(BTN_PIN)== LOW){
 
+      if(addCard())
+        Serial.println("Card Added");
+      else
+        Serial.println("Error Adding");
+    
+    }else{ 
+      if(checkIsValid())
+        Serial.println("Access granted");
+      else
+        Serial.println("Access not granted");
+    }
     
 
   }else Serial.println(F("Card read previously."));
@@ -80,7 +92,7 @@ bool checkIsValid(){
   memcpy(&value, nuidPICC, sizeof(int));
   
   Serial.println(value);
-  String serverName = "http://192.168.89.249:8081/checkRFID";
+  String serverName = "http://192.168.89.2:8081/checkRFID";
   if (wifiMulti.run() == WL_CONNECTED) {
 
     HTTPClient http;
@@ -109,7 +121,29 @@ bool checkIsValid(){
   return false;  
 }
 
+bool addCard(){
+  int value;
+  memcpy(&value, nuidPICC, sizeof(int));
+  String serverName = "http://192.168.89.2:8081/sendRFID";
+  HTTPClient http;
+  http.begin(serverName);
+  
+  http.addHeader("Content-Type", "application/json");
+  StaticJsonDocument<200> doc;
+  doc["rfid"] = value;
+  String requestBody;
+  serializeJson(doc, requestBody);
 
+  int httpResponseCode = http.POST(requestBody);
+
+  if (httpResponseCode>0){
+     return true;
+  }
+      http.end();
+    
+  Serial.println("WiFi Disconnected"); 
+  return false; 
+}
 
 void readCard(){
   for (byte i = 0; i < 4; i++)
@@ -117,7 +151,6 @@ void readCard(){
   
   Serial.println("Card readed");
 }
-
 
 void printDec(byte *buffer, byte bufferSize) {
   for (byte i = 0; i < bufferSize; i++) {
