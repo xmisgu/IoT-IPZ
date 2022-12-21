@@ -1,5 +1,6 @@
 package jetson.api.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +22,7 @@ public class Product {
     private double temp;
     private double humidity;
     private double pressure;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone="IST")
     private Timestamp timeStamp;
 
     public Product(double temp, double humidity, double pressure) {
