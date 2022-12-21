@@ -1,10 +1,7 @@
 package jetson.api.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.sql.Timestamp;
@@ -12,6 +9,7 @@ import java.sql.Timestamp;
 @Setter
 @Getter
 @RequiredArgsConstructor
+@ToString
 @Entity
 @Table(name = "product")
 public class Product {

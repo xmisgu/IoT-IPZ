@@ -5,6 +5,7 @@ import jetson.api.model.RFIDClient;
 import jetson.api.repository.DTERepository;
 import jetson.api.repository.RFIDRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Log4j
 public class DTEService {
     private final DTERepository dteRepository;
     private final RFIDRepository rfidRepository;
@@ -28,13 +30,16 @@ public class DTEService {
     }
 
     public Product getLatestProduct() {
-        return dteRepository.findTopByOrderByIdDesc();
+        Product latestProduct = dteRepository.findTopByOrderByIdDesc();
+        log.info("Latest product is " + latestProduct.toString());
+        return  latestProduct;
     }
 
     public List<RFIDClient> getAllRFIDs() {
         return rfidRepository.findAll();
     }
     public RFIDClient saveRFIDClient(RFIDClient rfidClient) {
+        log.info("RFIDClient which is being saved: " + rfidClient.toString());
         return rfidRepository.save(rfidClient);
     }
 
@@ -42,13 +47,12 @@ public class DTEService {
         Optional<RFIDClient> rfidClientFromDB = rfidRepository.findById(rfidClient.getId());
 
         if (rfidClientFromDB.isPresent()) {
+            log.info("RFID exists in database");
             RFIDClient updatedRFID = rfidClientFromDB.get();
-            System.out.println(updatedRFID.isInBuilding());
+            log.info("Inside?: " + updatedRFID.isInBuilding());
             updatedRFID.setInBuilding(!updatedRFID.isInBuilding());
             rfidRepository.save(updatedRFID);
         }
-
-        System.out.println(rfidRepository.findById(rfidClient.getId()).get().isInBuilding());
 
         return rfidClientFromDB.isPresent();
     }

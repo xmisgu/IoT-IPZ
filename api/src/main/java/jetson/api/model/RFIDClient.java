@@ -7,6 +7,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @RequiredArgsConstructor
+@ToString
 @Entity
 @Table(name = "rfid_client")
 public class RFIDClient {
