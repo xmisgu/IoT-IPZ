@@ -22,7 +22,7 @@ public class Product {
     private double temp;
     private double humidity;
     private double pressure;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone="IST")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss" ,timezone="ECT")
     private Timestamp timeStamp;
 
     public Product(double temp, double humidity, double pressure) {
