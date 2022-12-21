@@ -20,10 +20,12 @@ public class Product {
     private double temp;
     private double humidity;
     private double pressure;
+    private TimeStamp timeStamp;
 
     public Product(double temp, double humidity, double pressure) {
         this.temp = temp;
         this.humidity = humidity;
         this.pressure = pressure;
+        this.timeStamp = new Timestamp(System.currentTimeMillis());
     }
 }
