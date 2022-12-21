@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.sql.Timestamp;
 
 @Setter
 @Getter
@@ -20,7 +21,7 @@ public class Product {
     private double temp;
     private double humidity;
     private double pressure;
-    private TimeStamp timeStamp;
+    private Timestamp timeStamp;
 
     public Product(double temp, double humidity, double pressure) {
         this.temp = temp;
